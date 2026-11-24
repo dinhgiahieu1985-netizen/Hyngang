@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<meta name="theme-color" content="#1e3a8a">
+<title>NHÀ NGHỈ HY HY - PRO V11 - Moi Phong 1 Hang Ngang | Thêm khách ở cùng</title>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+<style>
+:root{--primary:#1e3a8a;--primary-light:#3b82f6;--success:#16a34a;--danger:#dc2626;--warning:#d97706;--bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b}
+*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+body{margin:0;background:var(--bg);color:var(--text);padding-bottom:80px}
+header{background:var(--primary);color:#fff;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+header h1{margin:0;font-size:15px;text-transform:uppercase}
+header p{margin:2px 0 0;font-size:11px;opacity:.85}
+.header-btn{background:rgba(255,255,255,.2);border:none;color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:bold;cursor:pointer}
+.nav-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;border-top:1px solid #cbd5e1;z-index:100;height:62px}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;color:var(--muted);cursor:pointer;border:none;background:none;font-weight:600}
+.nav-item.active{color:var(--primary);border-top:3px solid var(--primary);background:#eff6ff}
+.container{padding:12px;max-width:700px;margin:0 auto}
+.tab-content{display:none}.tab-content.active{display:block}
+.stat-card{background:#fff;padding:10px;border-radius:10px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.room-grid{display:flex;flex-direction:column;gap:10px;padding:2px}
+.room-grid::-webkit-scrollbar{height:8px}
+.room-grid::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:10px}
+.room-card{flex:none;width:100%;max-width:none;display:flex;flex-direction:row;gap:12px;align-items:flex-start}
+.room-h-left{flex:1;min-width:0}
+.room-h-right{flex:0 0 170px;display:flex;flex-direction:column;gap:6px}
+.room-h-right .room-btn-group{flex-direction:column;margin-top:0}
+.room-h-right .room-action-btn{flex:none;width:100%}
+.room-h-right .link-bar{margin:0}
+@media(max-width:480px){.room-h-right{flex:0 0 130px}}
+@media(min-width:700px){.room-card{flex:0 0 300px;max-width:300px}}
+.room-scroll-hint{font-size:12px;color:#64748b;text-align:center;margin:4px 0 8px}
+.room-card{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 2px 6px rgba(0,0,0,.06);border-left:6px solid var(--success);position:relative}
+.room-card.occupied{border-left-color:var(--danger);background:#fef2f2}
+.room-title{font-size:16px;font-weight:800;display:flex;justify-content:space-between;align-items:center}
+.badge{font-size:10px;padding:3px 7px;border-radius:10px;color:#fff;font-weight:bold}.bg-green{background:var(--success)}.bg-red{background:var(--danger)}
+.room-info{font-size:13px;margin-top:6px;line-height:1.45}
+.room-btn-group{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.room-action-btn{padding:8px;border:none;border-radius:6px;font-weight:bold;font-size:12px;cursor:pointer;flex:1}
+.btn{width:100%;padding:10px;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;margin-top:8px}
+.btn-primary{background:var(--primary);color:#fff}.btn-success{background:var(--success);color:#fff}.btn-danger{background:var(--danger);color:#fff}.btn-warning{background:var(--warning);color:#fff}.btn-outline{background:#fff;border:1.5px solid #cbd5e1}
+.btn-excel{background:#107c41;color:#fff}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;overflow-y:auto;padding:12px}.modal.active{display:flex;align-items:flex-start;justify-content:center}
+.modal-box{background:#fff;width:100%;max-width:560px;border-radius:14px;padding:18px;margin:20px 0 40px;box-shadow:0 10px 25px rgba(0,0,0,.2)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e2e8f0;padding-bottom:10px;margin-bottom:12px}
+.close-btn{background:#e2e8f0;border:none;width:32px;height:32px;border-radius:50%;font-size:18px;font-weight:bold;cursor:pointer}
+.form-group{margin-bottom:10px}label{display:block;font-size:12px;font-weight:600;margin-bottom:4px;color:#334155}
+input,select,textarea{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;background:#f8fafc}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-light);background:#fff}
+.btn-row{display:flex;gap:8px}
+.scanned-profile-box{display:none;background:#eff6ff;border:1.5px solid #93c5fd;border-radius:10px;padding:12px;margin-bottom:12px}.scanned-profile-box.show{display:block}
+.cccd-photo-wrap{display:none;margin-top:8px;position:relative}.cccd-photo-wrap.show{display:block}
+.cccd-photo-wrap img{width:100%;max-height:240px;object-fit:contain;border-radius:8px;border:1px solid #cbd5e1;cursor:zoom-in;background:#000}
+.cccd-zoom-hint{font-size:11px;color:var(--primary);font-weight:700;margin-top:4px;cursor:pointer}
+#cccd-zoom-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:500;align-items:center;justify-content:center;padding:10px}
+#cccd-zoom-modal.active{display:flex}
+#cccd-zoom-modal img{max-width:100%;max-height:92vh;object-fit:contain;border-radius:8px;transition:transform .2s;touch-action:pinch-zoom}
+.zoom-controls{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:10px}
+.zoom-controls button{background:rgba(255,255,255,.9);border:none;padding:8px 14px;border-radius:20px;font-weight:700;cursor:pointer}
+.ct14-box{background:#f8fafc;border:1px dashed #94a3b8;border-radius:8px;padding:10px;margin:10px 0;font-size:12px;line-height:1.5}
+.link-bar{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.link-bar a, .link-bar button{font-size:12px;padding:7px 10px;border-radius:6px;text-decoration:none;font-weight:700;border:none;cursor:pointer}
+.link-official{background:#1e3a8a;color:#fff}.link-vneid{background:#16a34a;color:#fff}.link-copy{background:#fff;border:1px solid #cbd5e1}
+.stock-card{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;margin-bottom:6px;border:1px solid #e2e8f0}
+.stock-low{background:#fef2f2;border-color:#fecaca}.stock-ok{background:#f0fdf4}
+<style>.zalo-note{background:#fff7ed;border:1px solid #fdba74;padding:8px;border-radius:8px;font-size:12px;line-height:1.5;margin:8px 0}.field-missing{border:2px solid #dc2626 !important;background:#fef2f2 !important}</style></style>
+</head>
+<body>
+<div id="preview-warning" style="display:none;background:#dc2626;color:#fff;padding:10px 12px;font-size:13px;font-weight:700;text-align:center">⚠️ Bạn đang mở bằng link xem trước (meta.ai/share) - nút Xác nhận sẽ KHÔNG lưu được. Bấm Tải file ở dưới, tải file .html về máy rồi mở bằng Chrome / Tệp của bạn.</div><header>
+<div><h1>NHÀ NGHỈ HY HY - PRO V11 - Moi Phong 1 Hang Ngang</h1><p>51 B4 Nguyễn Phương Danh, P. Vĩnh Lạc, TP. Rạch Giá, Tỉnh An Giang - ĐT: 0973 700 080 | CT14 - Thêm khách ở cùng</p></div>
+<div style="display:flex;gap:6px"><button class="header-btn" onclick="openOfficialLinks()">🏛️ Khai báo</button><button class="header-btn" onclick="exportData()">💾</button></div>
+</header>
+<div class="container">
+<div id="tab-rooms" class="tab-content active">
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+<div class="stat-card"><div style="font-size:11px;color:var(--muted)">Trống</div><div id="stat-empty" style="font-weight:800;color:var(--success)">0</div></div>
+<div class="stat-card"><div style="font-size:11px;color:var(--muted)">Đang thuê</div><div id="stat-occupied" style="font-weight:800;color:var(--danger)">0</div></div>
+<div class="stat-card"><div style="font-size:11px;color:var(--muted)">Hôm nay</div><div id="stat-today" style="font-weight:800;color:var(--primary)">0 đ</div></div>
+</div>
+<div id="room-list" class="room-grid"></div>
+<div style="background:#fff;padding:12px;border-radius:10px;margin-top:14px">
+<h3 style="margin:0 0 8px;font-size:14px;color:var(--primary)">Lịch sử trả phòng gần đây</h3>
+<div id="history-list"></div>
+<button class="btn btn-outline" onclick="clearHistory()">Xóa lịch sử hiển thị</button>
+</div>
+</div>
+<div id="tab-inventory" class="tab-content">
+<div style="display:flex;gap:6px;margin-bottom:10px">
+<button class="btn btn-primary" style="flex:1;margin:0" onclick="switchInvTab('stock')">📦 Kho hàng</button>
+<button class="btn btn-warning" style="flex:1;margin:0" onclick="switchInvTab('expense')">🧾 Nhập hàng / Chi phí</button>
+</div>
+<div id="inv-sub-stock">
+<div style="background:#fff;padding:15px;border-radius:12px;margin-bottom:12px">
+<h3 style="margin:0 0 10px;color:var(--primary)">➕ Thêm mặt hàng mới vào kho</h3>
+<div class="form-group"><label>Tên mặt hàng</label><input type="text" id="stock-new-name" placeholder="VD: Nước suối, Mì tôm, Bia..."></div>
+<div class="btn-row"><div class="form-group" style="flex:1"><label>Giá bán (VNĐ)</label><input type="number" id="stock-new-price" placeholder="15000"></div><div class="form-group" style="flex:1"><label>Số lượng nhập</label><input type="number" id="stock-new-qty" placeholder="24"></div></div>
+<button class="btn btn-success" onclick="addNewStockItem()">💾 Lưu vào kho</button>
+</div>
+<div style="background:#fff;padding:15px;border-radius:12px"><div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0;font-size:15px;color:var(--primary)">Danh sách tồn kho</h3><span style="font-size:11px;color:var(--danger);font-weight:700">Cảnh báo khi dưới 5</span></div><div id="stock-list" style="margin-top:10px"></div></div>
+</div>
+<div id="inv-sub-expense" style="display:none">
+<div style="background:#fff;padding:15px;border-radius:12px;margin-bottom:12px">
+<h3 style="margin-top:0;color:var(--primary)">Ghi nhận Nhập hàng / Chi phí</h3>
+<div class="form-group"><label>Cộng thẳng vào kho (Tùy chọn)</label><select id="inv-link-stock" onchange="autoFillInvName()"><option value="">-- Không cộng kho --</option></select></div>
+<div class="form-group"><label>Tên mặt hàng / Khoản chi</label><input type="text" id="inv-item-name" placeholder="VD: Nhập 1 thùng nước, Tiền điện..."></div>
+<div class="form-group"><label>Loại chi phí</label><select id="inv-item-category"><option>Hàng bán (Nước, Mì...)</option><option>Vật tư buồng phòng</option><option>Chi phí vận hành</option><option>Sửa chữa / Khác</option></select></div>
+<div class="btn-row"><div class="form-group" style="flex:1"><label>Số lượng</label><input type="number" id="inv-item-qty" value="1"></div><div class="form-group" style="flex:2"><label>Tổng tiền chi (VNĐ)</label><input type="number" id="inv-item-cost" placeholder="150000"></div></div>
+<div class="form-group"><label>Ghi chú</label><input type="text" id="inv-item-note" placeholder="Nhà cung cấp..."></div>
+<button class="btn btn-success" onclick="addInventoryRecord()">➕ Lưu phiếu nhập & Cập nhật kho</button>
+</div>
+<div style="background:#fff;padding:15px;border-radius:12px"><div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0;font-size:15px">Lịch sử phiếu chi</h3><span id="total-inv-expense" style="font-size:13px;color:var(--danger);font-weight:bold">Tổng chi: 0 đ</span></div><div id="inventory-list" style="margin-top:10px"></div></div>
+</div>
+</div>
+<div id="tab-customers" class="tab-content"><input type="text" id="search-cust" placeholder="Tìm tên, CCCD, ghi chú..." onkeyup="renderCustomers()"><button class="btn btn-primary" onclick="openAddCustomerModal()">+ Thêm khách</button><div id="customer-list" style="margin-top:10px"></div></div>
+<div id="tab-stats" class="tab-content"><div style="background:#fff;padding:15px;border-radius:12px"><h3 style="color:var(--primary);margin-top:0">Báo cáo & Xuất Excel chuẩn CT14</h3><div class="btn-row"><div class="form-group" style="flex:1"><label>Từ ngày</label><input type="date" id="stat-from" onchange="renderStatsReport()"></div><div class="form-group" style="flex:1"><label>Đến ngày</label><input type="date" id="stat-to" onchange="renderStatsReport()"></div></div><div style="background:#f8fafc;padding:10px;border-radius:8px;font-size:13px;line-height:1.6"><div style="display:flex;justify-content:space-between"><span>Tổng lượt:</span><strong id="rep-total-visits">0</strong></div><div style="display:flex;justify-content:space-between"><span>Doanh thu:</span><strong id="rep-total-amount" style="color:var(--success)">0 đ</strong></div><div style="display:flex;justify-content:space-between;border-top:1px solid #cbd5e1;margin-top:6px;padding-top:6px;font-size:15px"><span>LỢI NHUẬN:</span><strong id="rep-net-profit">0 đ</strong></div></div><button class="btn btn-excel" onclick="exportToExcel()">📊 Xuất Excel đầy đủ</button></div></div>
+<div id="tab-settings" class="tab-content"><div style="background:#fff;padding:15px;border-radius:12px"><h3>Quản lý phòng</h3><input type="text" id="new-room-name" placeholder="Tên phòng"><select id="new-room-type"><option>Phòng Đơn</option><option>Phòng Đôi</option><option>Phòng VIP</option></select><button class="btn btn-success" onclick="addNewRoom()">+ Thêm phòng</button><div id="settings-room-list" style="margin-top:10px"></div></div></div>
+</div>
+<div class="nav-bar">
+<button class="nav-item active" onclick="switchTab('rooms',this)">🏨 Phòng</button>
+<button class="nav-item" onclick="switchTab('inventory',this)">📦 Kho</button>
+<button class="nav-item" onclick="switchTab('customers',this)">📒 Sổ khách</button>
+<button class="nav-item" onclick="switchTab('stats',this)">📈 Báo cáo</button>
+<button class="nav-item" onclick="switchTab('settings',this)">⚙️ Cài đặt</button>
+</div>
+
+<!-- CHECKIN -->
+<div id="checkin-modal" class="modal"><div class="modal-box">
+<div class="modal-header"><h2 id="checkin-title">Nhận phòng - CT14</h2><button class="close-btn" onclick="closeModal('checkin-modal')">×</button></div>
+<div class="btn-row"><button class="btn btn-primary" style="flex:1" onclick="startCameraScanSafe()">📷 Chụp / Quét QR CCCD</button><button class="btn btn-warning" style="flex:1" onclick="document.getElementById('qr-file-input').click()">🖼️ Chọn ảnh QR</button><input type="file" id="qr-file-input" accept="image/*" style="display:none" onchange="scanFromFile(event)">
+
+<!-- Ô chọn file THẬT cho khách thêm: để visible để Zalo cho bấm, dùng label làm nút -->
+<input type="file" id="qr-extra-file-input" accept="image/*" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" onchange="scanExtraFromFile(event)">
+<input type="file" id="extra-qr-gallery-input" accept="image/*" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" onchange="scanExtraFromFile(event)">
+<input type="file" id="extra-photo-input" accept="image/*" capture="environment" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" onchange="handleExtraPhotoUpload(event)">
+</div>
+<div class="zalo-note">⚠️ Đang mở trong Zalo: Zalo chặn camera trực tiếp. Bấm nút <b>Chụp / Quét QR</b> → chọn <b>Chụp ảnh</b> → chụp rõ mã QR CCCD → app tự đọc. Nếu ảnh mờ, nhập tay vẫn được.</div><div id="qr-reader-container" style="display:none;background:#000;border-radius:8px;padding:8px;margin:8px 0"><div id="reader"></div><p style="color:#fff;font-size:12px">Đưa QR CCCD vào khung...</p><button class="btn btn-danger" onclick="stopScanner()">Đóng camera</button></div>
+<div class="form-group"><label>Ảnh CCCD / Giấy tờ</label><input type="file" accept="image/*" onchange="handlePhotoUpload(event,'checkin')"><div id="checkin-cccd-photo-wrap" class="cccd-photo-wrap"><img id="checkin-cccd-photo-preview" onclick="openZoom(this.src)"><div class="cccd-zoom-hint" onclick="openZoom(document.getElementById('checkin-cccd-photo-preview').src)">🔍 Nhấn để phóng to</div><button id="btn-clear-checkin-photo" class="btn btn-outline" style="display:none;margin-top:6px" onclick="clearPhoto('checkin')">Xóa ảnh</button></div></div>
+<div id="scanned-profile-box" class="scanned-profile-box"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:800;color:var(--primary);font-size:13px">🪪 THÔNG TIN KHÁCH - CHUẨN CT14</span></div><div id="scanned-profile-content" style="margin-top:8px"></div></div>
+<div id="returning-guest-alert" style="display:none;background:#fef08a;border:1px solid #eab308;padding:8px;border-radius:8px;margin-bottom:10px;font-size:13px"></div>
+<div style="border:1.5px solid #1e3a8a;border-radius:10px;padding:12px;background:#f8fafc;margin-bottom:10px">
+<h4 style="margin:0 0 10px;color:var(--primary)">A. Thông tin bắt buộc khai báo lưu trú (CT14)</h4>
+<div class="btn-row"><div class="form-group" style="flex:2"><label>Họ và tên *</label><input type="text" id="guest-name" placeholder="NGUYEN VAN A" oninput="syncAll()"></div><div class="form-group" style="flex:1"><label>Ngày sinh *</label><input type="text" id="guest-dob" placeholder="DD/MM/YYYY" oninput="syncAll()"></div></div>
+<div class="btn-row"><div class="form-group" style="flex:1"><label>Giới tính</label><select id="guest-gender" onchange="syncAll()"><option value="">Chọn</option><option>Nam</option><option>Nữ</option><option>Khác</option></select></div><div class="form-group" style="flex:1"><label>Quốc tịch</label><input type="text" id="guest-nationality" value="Việt Nam" oninput="syncAll()"></div></div>
+<div class="btn-row"><div class="form-group" style="flex:1.2"><label>Số ĐDCN / CCCD *</label><input type="text" id="guest-cccd" placeholder="12 số" oninput="checkExistingGuest(this.value);syncAll()"></div><div class="form-group" style="flex:1"><label>Loại giấy tờ</label><select id="guest-doc-type" onchange="syncAll()"><option>CCCD</option><option>CCCD gắn chip</option><option>CMND</option><option>Hộ chiếu</option><option>Khác</option></select></div></div>
+<div class="form-group"><label>Địa chỉ thường trú *</label><input type="text" id="guest-address" placeholder="Xã/Phường, Huyện, Tỉnh..." oninput="syncAll()"></div>
+<div class="btn-row"><div class="form-group" style="flex:1"><label>Lý do lưu trú *</label><select id="guest-reason" onchange="syncAll()"><option>Du lịch</option><option>Công tác</option><option>Thăm thân</option><option>Lưu trú qua đêm</option><option>Khác</option></select></div><div class="form-group" style="flex:1"><label>Thời gian lưu trú *</label><div class="btn-row"><input type="datetime-local" id="guest-checkin-time" style="flex:1"><input type="datetime-local" id="guest-checkout-plan" style="flex:1"></div></div></div>
+<div class="form-group"><label>Địa chỉ lưu trú</label><input type="text" id="guest-stay-address" value="Nhà nghỉ Hy Hy - Rạch Giá, Kiên Giang"></div>
+</div>
+<div style="border:1px solid #cbd5e1;border-radius:10px;padding:12px;background:#fff;margin-bottom:10px">
+<h4 style="margin:0 0 8px">B. Thông tin bổ sung</h4>
+<div class="btn-row"><div class="form-group" style="flex:1"><label>Hình thức thuê</label><select id="rent-type"><option value="hourly">Nghỉ giờ</option><option value="overnight">Qua đêm</option><option value="daily">Theo ngày</option></select></div><div class="form-group" style="flex:1"><label>Số khách / Biển số xe</label><div class="btn-row"><input type="number" id="guest-count" value="1" min="1"><input type="text" id="guest-plate" placeholder="Biển số xe"></div></div></div>
+<div class="btn-row"><div class="form-group" style="flex:1"><label>Cọc trước (VNĐ)</label><input type="number" id="guest-deposit" value="0"></div><div class="form-group" style="flex:2"><label>Ghi chú / Nợ</label><input type="text" id="guest-note" placeholder="Ghi chú..."></div></div>
+</div>
+<div class="ct14-box" id="ct14-preview">Xem trước dữ liệu sẽ gửi khai báo...</div>
+<div class="link-bar"><button class="link-official" onclick="openOfficial('luutru')">🏛️ Mở CSDLQG lưu trú</button><button class="link-official" style="background:#0f766e" onclick="openOfficial('dichvucong')">🌐 Dịch vụ công BCA</button><button class="link-copy" onclick="copyCT14()">📋 Copy CT14</button></div>
+<div id="checkin-error" style="display:none;background:#fef2f2;border:1.5px solid #dc2626;color:#dc2626;padding:10px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:8px"></div>
+<div id="checkin-toast" style="display:none;background:#dcfce7;border:1.5px solid #16a34a;color:#166534;padding:10px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:8px"></div>
+<button id="confirm-checkin-btn" type="button" class="btn btn-success" style="font-size:16px;padding:12px" onclick="confirmCheckin()">✅ XÁC NHẬN NHẬN PHÒNG & LƯU KHAI BÁO</button>
+</div></div>
+
+<!-- EDIT + THÊM KHÁCH -->
+<div id="edit-room-modal" class="modal"><div class="modal-box">
+<div class="modal-header"><h2>Chỉnh sửa thông tin khách đang ở</h2><button class="close-btn" onclick="closeModal('edit-room-modal')">×</button></div>
+<div id="edit-room-content"></div>
+<div style="border:1.5px solid var(--warning);border-radius:10px;padding:12px;background:#fffbeb;margin:10px 0">
+<h4 style="margin:0 0 8px;color:var(--warning)">✏️ Khách chính - Chỉnh sửa sau nhận phòng</h4>
+<div id="edit-form-fields"></div>
+<div class="form-group"><label>Ảnh CCCD mới</label><input type="file" accept="image/*" onchange="handlePhotoUpload(event,'edit')"><div id="edit-cccd-photo-wrap" class="cccd-photo-wrap"><img id="edit-cccd-photo-preview" onclick="openZoom(this.src)"><div class="cccd-zoom-hint">🔍 Phóng to</div><button id="btn-clear-cust-photo" class="btn btn-outline" style="display:none" onclick="clearPhoto('edit')">Xóa ảnh</button></div></div>
+</div>
+
+<!-- *** MỚI: THÊM KHÁCH Ở CÙNG *** -->
+<div style="border:1.5px solid #0ea5e9;border-radius:10px;padding:12px;background:#f0f9ff;margin:10px 0">
+<h4 style="margin:0 0 8px;color:#0369a1">👥 Thêm khách ở cùng phòng</h4>
+<div id="extra-guests-list"></div>
+<div style="border-top:1px dashed #7dd3fc;padding-top:10px;margin-top:8px">
+<div class="btn-row"><div class="form-group" style="flex:2"><label>Họ và tên khách thêm *</label><input id="extra-name" placeholder="NGUYEN VAN B"></div><div class="form-group" style="flex:1"><label>Ngày sinh *</label><input id="extra-dob" placeholder="DD/MM/YYYY"></div></div>
+<div class="btn-row"><div class="form-group" style="flex:1"><label>Giới tính</label><select id="extra-gender"><option value="">Chọn</option><option>Nam</option><option>Nữ</option><option>Khác</option></select></div><div class="form-group" style="flex:1"><label>Quốc tịch</label><input id="extra-nationality" value="Việt Nam"></div></div>
+<div class="btn-row"><div class="form-group" style="flex:1.2"><label>Số CCCD / ĐDCN *</label><input id="extra-cccd" placeholder="12 số"></div><div class="form-group" style="flex:1"><label>Loại giấy tờ</label><select id="extra-doc-type"><option>CCCD</option><option>CCCD gắn chip</option><option>CMND</option><option>Hộ chiếu</option><option>Khác</option></select></div></div>
+<div class="form-group"><label>Địa chỉ thường trú *</label><input id="extra-address" placeholder="Xã/Phường, Huyện, Tỉnh..."></div>
+<div class="form-group"><label>📸 Ảnh CCCD khách thêm (tùy chọn - để lưu như khách chính)</label>
+<div id="extra-photo-preview-wrap" style="display:none;margin-top:6px"><img id="extra-photo-preview" style="width:100%;max-height:180px;object-fit:contain;border-radius:8px;border:1px solid #cbd5e1;background:#000" onclick="openZoom(this.src)"><div style="font-size:11px;color:#0369a1;font-weight:700;margin-top:4px" onclick="openZoom(document.getElementById('extra-photo-preview').src)">🔍 Nhấn để phóng to</div></div>
+<div class="btn-row" style="margin-top:6px">
+<label for="extra-photo-input" style="flex:1;background:#0ea5e9;color:#fff;padding:10px;border-radius:8px;font-weight:700;font-size:13px;text-align:center;cursor:pointer">📸 Chụp ảnh CCCD</label>
+<button type="button" class="btn btn-outline" style="flex:1;margin:0" onclick="clearExtraPhoto()">🗑️ Xóa ảnh CCCD</button>
+</div></div>
+<div class="btn-row"><button type="button" class="btn btn-primary" style="flex:1" onclick="addExtraGuest()">➕ Thêm khách này vào phòng</button></div>
+<div class="btn-row">
+<label for="qr-extra-file-input" style="flex:1;background:#d97706;color:#fff;padding:10px;border-radius:8px;font-weight:700;font-size:13px;text-align:center;cursor:pointer">📷 Chụp ảnh QR CCCD</label>
+<label for="extra-qr-gallery-input" style="flex:1;background:#fff;border:1.5px solid #d97706;color:#92400e;padding:10px;border-radius:8px;font-weight:700;font-size:13px;text-align:center;cursor:pointer">🖼️ Chọn ảnh QR từ thư viện</label>
+</div>
+<p style="font-size:12px;color:#475569">Nếu bấm nút cam mà không mở được khung chọn ảnh, bấm nút <b>Chọn ảnh QR từ thư viện</b> bên cạnh - nút này luôn mở được trong Zalo.</p>
+<p style="font-size:11px;color:#475569">Mẹo: Quét QR sẽ tự điền Họ tên / Ngày sinh / Giới tính / CCCD / Địa chỉ. Bấm Thêm để lưu ngay, không cần bấm Lưu thay đổi ở dưới.</p>
+</div>
+</div>
+
+<div class="ct14-box" id="edit-ct14-preview"></div>
+<div class="link-bar"><button class="link-official" onclick="openOfficial('luutru')">🏛️ Khai báo lại</button><button class="link-copy" onclick="copyEditCT14()">📋 Copy CT14 (cả phòng)</button></div>
+<div class="btn-row"><button class="btn btn-success" onclick="saveRoomEdit()">💾 Lưu thay đổi khách chính</button><button class="btn btn-danger" onclick="openCheckoutModal(currentEditRoomId)">💳 Trả phòng</button></div>
+</div></div>
+
+<div id="sell-modal" class="modal"><div class="modal-box"><div class="modal-header"><h2 id="sell-title">Bán đồ cho phòng</h2><button class="close-btn" onclick="closeModal('sell-modal')">×</button></div>
+<div class="form-group"><label>Chọn mặt hàng</label><select id="sell-stock-id" onchange="updateSellPrice()"></select></div>
+<div id="sell-stock-info" style="font-size:12px;color:var(--muted);margin-bottom:8px"></div>
+<div class="btn-row"><div class="form-group" style="flex:1"><label>Số lượng</label><input type="number" id="sell-qty" value="1" min="1" oninput="updateSellPrice()"></div><div class="form-group" style="flex:1"><label>Giá bán</label><input type="number" id="sell-price" value="0"></div></div>
+<div id="sell-total" style="font-weight:800;color:var(--danger);margin-bottom:8px"></div>
+<button class="btn btn-success" onclick="confirmSell()">✅ Bán & Trừ kho ngay</button></div></div>
+<div id="edit-stock-modal" class="modal"><div class="modal-box"><div class="modal-header"><h2 id="edit-stock-title">Sửa kho</h2><button class="close-btn" onclick="closeModal('edit-stock-modal')">×</button></div><input type="hidden" id="edit-stock-id"><div class="form-group"><label>Tên</label><input id="edit-stock-name"></div><div class="btn-row"><div class="form-group" style="flex:1"><label>Giá bán</label><input type="number" id="edit-stock-price"></div><div class="form-group" style="flex:1"><label>Tồn kho</label><input type="number" id="edit-stock-qty"></div></div><div class="btn-row"><button class="btn btn-success" onclick="saveStockEdit()">Lưu</button><button class="btn btn-danger" onclick="deleteStockItem()">Xóa</button></div></div></div>
+<div id="checkout-modal" class="modal"><div class="modal-box"><div class="modal-header"><h2>Trả phòng</h2><button class="close-btn" onclick="closeModal('checkout-modal')">×</button></div><div id="checkout-content"></div><button class="btn btn-danger" onclick="confirmCheckout()">Xác nhận trả phòng</button></div></div>
+<div id="official-modal" class="modal"><div class="modal-box"><div class="modal-header"><h2>Khai báo lưu trú</h2><button class="close-btn" onclick="closeModal('official-modal')">×</button></div><div style="font-size:13px;line-height:1.6"><p><strong>Chuẩn CT14:</strong> Khai trước 23h ngày bắt đầu lưu trú, nếu sau 23h thì trước 8h sáng hôm sau. Lưu 36 tháng.</p><ul><li><a href="https://luutru.dancuquocgia.gov.vn" target="_blank">luutru.dancuquocgia.gov.vn</a></li><li><a href="https://dichvucong.bocongan.gov.vn" target="_blank">dichvucong.bocongan.gov.vn</a> → Thông báo lưu trú CT14</li><li>VNeID: Khai qua app VNeID</li></ul><button class="btn btn-primary" onclick="window.open('https://luutru.dancuquocgia.gov.vn','_blank')">Mở CSDLQG</button><button class="btn btn-success" onclick="window.open('https://dichvucong.bocongan.gov.vn','_blank')">Mở Dịch vụ công BCA</button></div></div></div>
+<div id="cccd-zoom-modal" onclick="closeZoom()"><img id="cccd-zoom-img" src=""><div class="zoom-controls"><button onclick="zoomIn(event)">＋ Phóng to</button><button onclick="zoomOut(event)">－ Thu nhỏ</button><button onclick="closeZoom()">✕ Đóng</button></div></div>
+
+<script>
+let _memStore={};
+function safeGet(k){try{let v=localStorage.getItem(k);if(v!==null)return v}catch(e){}return _memStore[k]!==undefined?_memStore[k]:null}
+function safeSet(k,v){try{localStorage.setItem(k,v)}catch(e){}try{_memStore[k]=v}catch(e){}}
+function safeParse(k,f){try{let v=safeGet(k);if(!v)return f;return JSON.parse(v)}catch(e){return f}}
+let rooms=safeParse('hyhy_rooms_v2',null)||[{id:1,name:'P101',type:'Phòng Đơn',status:'empty',guests:[],extras:[],deposit:0},{id:2,name:'P102',type:'Phòng Đôi',status:'empty',guests:[],extras:[],deposit:0},{id:3,name:'P201',type:'Phòng VIP',status:'empty',guests:[],extras:[],deposit:0},{id:4,name:'P202',type:'Phòng Đơn',status:'empty',guests:[],extras:[],deposit:0}];
+let customers=safeParse('hyhy_customers_v2',[]);
+let historyLogs=safeParse('hyhy_history_v2',[]);
+let stockItems=safeParse('hyhy_stock_v2',[]);
+let inventoryLogs=safeParse('hyhy_inventory_v2',[]);
+let prices=safeParse('hyhy_prices_v2',{firstHour:60000,nextHour:20000,overnight:150000});
+let pendingExtraPhoto='';
+let currentCheckinRoomId=null,currentEditRoomId=null,pendingCheckinPhoto='',currentEditCustPhoto='',isScannedProfileVisible=false;
+let html5QrCode=null,zoomScale=1,checkoutRoomId=null,currentSellRoomId=null;
+function saveData(){try{safeSet('hyhy_rooms_v2',JSON.stringify(rooms));safeSet('hyhy_customers_v2',JSON.stringify(customers));safeSet('hyhy_history_v2',JSON.stringify(historyLogs));safeSet('hyhy_stock_v2',JSON.stringify(stockItems));safeSet('hyhy_prices_v2',JSON.stringify(prices));safeSet('hyhy_inventory_v2',JSON.stringify(inventoryLogs))}catch(e){}}
+function saveAll(){saveData()}
+function formatMoney(n){return (n||0).toLocaleString('vi-VN')+' đ'}
+function formatTime(ts){if(!ts)return '';return new Date(ts).toLocaleString('vi-VN')}
+function getLocalDateISO(ts){let d=new Date(ts);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function switchTab(id,btn){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.getElementById('tab-'+id).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');if(id==='rooms')renderRooms();if(id==='inventory'){renderStockList();populateInvStockDropdown();renderInventoryList();}if(id==='customers')renderCustomers();if(id==='stats')renderStatsReport();if(id==='settings')renderSettingsRooms();}
+function openOfficialLinks(){document.getElementById('official-modal').classList.add('active')}
+function openOfficial(type){if(type==='luutru')window.open('https://luutru.dancuquocgia.gov.vn','_blank');else window.open('https://dichvucong.bocongan.gov.vn','_blank')}
+function openZoom(src){if(!src)return;document.getElementById('cccd-zoom-img').src=src;zoomScale=1;document.getElementById('cccd-zoom-img').style.transform='scale(1)';document.getElementById('cccd-zoom-modal').classList.add('active')}
+function closeZoom(){document.getElementById('cccd-zoom-modal').classList.remove('active')}
+function zoomIn(e){e.stopPropagation();zoomScale=Math.min(4,zoomScale+0.3);document.getElementById('cccd-zoom-img').style.transform=`scale(${zoomScale})`}
+function zoomOut(e){e.stopPropagation();zoomScale=Math.max(0.6,zoomScale-0.3);document.getElementById('cccd-zoom-img').style.transform=`scale(${zoomScale})`}
+function compressImageFile(file,maxW=900,quality=0.7){return new Promise((res,rej)=>{let r=new FileReader();r.onload=e=>{let img=new Image();img.onload=()=>{let w=img.width,h=img.height;if(w>maxW){h=h*maxW/w;w=maxW}let c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);res(c.toDataURL('image/jpeg',quality))};img.onerror=rej;img.src=e.target.result};r.onerror=rej;r.readAsDataURL(file)})}
+function updatePhotoUI(scope,dataUrl){let wrapId=scope==='checkin'?'checkin-cccd-photo-wrap':'edit-cccd-photo-wrap',imgId=scope==='checkin'?'checkin-cccd-photo-preview':'edit-cccd-photo-preview',clearId=scope==='checkin'?'btn-clear-checkin-photo':'btn-clear-cust-photo';let wrap=document.getElementById(wrapId),img=document.getElementById(imgId),btn=document.getElementById(clearId);if(dataUrl){img.src=dataUrl;wrap.classList.add('show');btn.style.display='inline-block'}else{img.src='';wrap.classList.remove('show');btn.style.display='none'}}
+
+function handleExtraPhotoUpload(e){
+  if(!e.target.files[0]) return;
+  compressImageFile(e.target.files[0]).then(url=>{
+    pendingExtraPhoto=url;
+    let w=document.getElementById('extra-photo-preview-wrap'); let img=document.getElementById('extra-photo-preview');
+    if(w&&img){ img.src=url; w.style.display='block'; }
+  });
+  e.target.value='';
+}
+function clearExtraPhoto(){ pendingExtraPhoto=''; let w=document.getElementById('extra-photo-preview-wrap'); if(w) w.style.display='none'; let img=document.getElementById('extra-photo-preview'); if(img) img.src=''; }
+function handlePhotoUpload(e,scope){if(!e.target.files[0])return;compressImageFile(e.target.files[0]).then(url=>{if(scope==='checkin'){pendingCheckinPhoto=url;updatePhotoUI('checkin',url)}else{currentEditCustPhoto=url;updatePhotoUI('edit',url)}});e.target.value=''}
+function clearPhoto(scope){if(scope==='checkin'){pendingCheckinPhoto='';updatePhotoUI('checkin','')}else{currentEditCustPhoto='';updatePhotoUI('edit','')}}
+function syncAll(){renderScannedProfileCard();updateCT14Preview()}
+function parseCCCD(qrText){let parts=qrText.split('|');if(parts.length>=6){document.getElementById('guest-cccd').value=parts[0]||'';document.getElementById('guest-name').value=parts[2]||'';let rawDob=parts[3]||'';if(rawDob.length===8)rawDob=`${rawDob.slice(0,2)}/${rawDob.slice(2,4)}/${rawDob.slice(4,8)}`;document.getElementById('guest-dob').value=rawDob;document.getElementById('guest-gender').value=parts[4]||'';document.getElementById('guest-address').value=parts[5]||'';document.getElementById('guest-checkin-time').value=new Date().toISOString().slice(0,16);let out=new Date();out.setDate(out.getDate()+1);out.setHours(12,0,0,0);document.getElementById('guest-checkout-plan').value=out.toISOString().slice(0,16);checkExistingGuest(parts[0]);isScannedProfileVisible=true;syncAll();alert('✅ Quét CCCD thành công!')}else alert('⚠️ QR không đúng chuẩn CCCD')}
+function checkExistingGuest(cccd){if(!cccd)return;let found=customers.find(c=>c.cccd&&c.cccd.trim()===cccd.trim());let alertBox=document.getElementById('returning-guest-alert');if(found){if(!document.getElementById('guest-name').value)document.getElementById('guest-name').value=found.name;if(!document.getElementById('guest-address').value)document.getElementById('guest-address').value=found.address;document.getElementById('guest-note').value=found.note||'';if(!pendingCheckinPhoto&&found.cccdPhoto){pendingCheckinPhoto=found.cccdPhoto;updatePhotoUI('checkin',pendingCheckinPhoto)}alertBox.style.display='block';alertBox.innerHTML=`<strong>🔔 Khách quen:</strong> ${found.name}<br>Ghi chú: <span style="color:red;font-weight:bold">${found.note||'Không có'}</span>`}else alertBox.style.display='none'}
+function renderScannedProfileCard(){let box=document.getElementById('scanned-profile-box');let content=document.getElementById('scanned-profile-content');if(!isScannedProfileVisible){box.classList.remove('show');return}box.classList.add('show');content.innerHTML=`<div style="font-size:12px;line-height:1.6"><b>${document.getElementById('guest-name').value}</b> | ${document.getElementById('guest-dob').value} | ${document.getElementById('guest-gender').value}<br>CCCD: <b>${document.getElementById('guest-cccd').value}</b><br>Địa chỉ: ${document.getElementById('guest-address').value}</div>`}
+function updateCT14Preview(){let room=rooms.find(r=>r.id===currentCheckinRoomId);document.getElementById('ct14-preview').innerHTML=`<strong>CT14:</strong><br>${document.getElementById('guest-name').value||'...'} | ${document.getElementById('guest-dob').value||'...'} | ${document.getElementById('guest-cccd').value||'...'}<br>${document.getElementById('guest-address').value||'...'}<br>Lý do: ${document.getElementById('guest-reason').value} | Từ: ${document.getElementById('guest-checkin-time').value||'...'} đến: ${document.getElementById('guest-checkout-plan').value||'...'}<br>Lưu trú: Nhà nghỉ Hy Hy - ${room?room.name:''}`}
+function buildGuestObject(){let now=Date.now();return{id:'g_'+now,name:document.getElementById('guest-name').value.trim(),dob:document.getElementById('guest-dob').value.trim(),gender:document.getElementById('guest-gender').value,nationality:document.getElementById('guest-nationality').value,cccd:document.getElementById('guest-cccd').value.trim(),docType:document.getElementById('guest-doc-type').value,address:document.getElementById('guest-address').value.trim(),reason:document.getElementById('guest-reason').value,checkInTime:document.getElementById('guest-checkin-time').value?new Date(document.getElementById('guest-checkin-time').value).getTime():now,checkOutPlan:document.getElementById('guest-checkout-plan').value?new Date(document.getElementById('guest-checkout-plan').value).getTime():0,stayAddress:document.getElementById('guest-stay-address').value,rentType:document.getElementById('rent-type').value,totalGuests:parseInt(document.getElementById('guest-count').value)||1,plate:document.getElementById('guest-plate').value,deposit:parseInt(document.getElementById('guest-deposit').value)||0,note:document.getElementById('guest-note').value,cccdPhoto:pendingCheckinPhoto||'',checkInTimeActual:now}}
+function openCheckinModal(roomId){currentCheckinRoomId=roomId;let room=rooms.find(r=>r.id===roomId);document.getElementById('checkin-title').innerText=`Nhận phòng ${room.name} - CT14`;document.getElementById('guest-checkin-time').value=new Date().toISOString().slice(0,16);let out=new Date();out.setDate(out.getDate()+1);out.setHours(12,0,0,0);document.getElementById('guest-checkout-plan').value=out.toISOString().slice(0,16);document.getElementById('checkin-modal').classList.add('active');updateCT14Preview()}
+function showCheckinError(msg,focusId){
+  let box=document.getElementById('checkin-error'); if(box){box.style.display='block'; box.innerHTML=msg;}
+  let t=document.getElementById('checkin-toast'); if(t) t.style.display='none';
+  if(focusId){ let el=document.getElementById(focusId); if(el){ el.classList.add('field-missing'); el.scrollIntoView({behavior:'smooth',block:'center'}); setTimeout(()=>el.focus(),300);} }
+}
+function clearCheckinError(){ let box=document.getElementById('checkin-error'); if(box) box.style.display='none'; ['guest-name','guest-dob','guest-cccd'].forEach(id=>{let el=document.getElementById(id); if(el) el.classList.remove('field-missing');}); }
+function safeAlert(msg){ try{ alert(msg); }catch(e){} }
+function confirmCheckin(){
+  try{ clearCheckinError(); }catch(e){}
+  let g;
+  try{ g=buildGuestObject(); }catch(e){ showCheckinError('❌ Lỗi đọc form: '+e.message); return; }
+  if(!g.name){ showCheckinError('❌ CHƯA NHẬP HỌ VÀ TÊN - Kéo lên trên, nhập Họ và tên khách rồi bấm lại nút xanh.','guest-name'); return; }
+  if(!g.dob){ showCheckinError('❌ CHƯA NHẬP NGÀY SINH - Nhập dạng DD/MM/YYYY, VD: 01/01/1990 rồi bấm lại.','guest-dob'); return; }
+  if(!g.cccd){ showCheckinError('❌ CHƯA NHẬP SỐ CCCD / ĐDCN - Nhập 12 số hoặc quét QR CCCD rồi bấm lại.','guest-cccd'); return; }
+  let room=rooms.find(r=>r.id===currentCheckinRoomId);
+  if(!room){ showCheckinError('❌ Chưa chọn phòng. Tắt modal này, bấm lại nút + Nhận phòng của phòng đó rồi nhập lại.'); return; }
+  room.status='occupied'; room.guests=[g]; room.deposit=g.deposit; room.extras=[];
+  try{
+    let existing=customers.find(c=>c.cccd===g.cccd);
+    if(existing){existing.name=g.name;existing.address=g.address;existing.dob=g.dob;existing.gender=g.gender;existing.cccdPhoto=g.cccdPhoto||existing.cccdPhoto;existing.lastVisit=Date.now();if(g.note)existing.note=g.note}
+    else customers.push({id:g.id,name:g.name,cccd:g.cccd,address:g.address,dob:g.dob,gender:g.gender,nationality:g.nationality,cccdPhoto:g.cccdPhoto,note:g.note,lastVisit:Date.now(),docType:g.docType});
+  }catch(e){}
+  try{ saveData(); }catch(e){}
+  try{ closeModal('checkin-modal'); }catch(e){}
+  try{ renderRooms(); }catch(e){}
+  pendingCheckinPhoto=''; try{updatePhotoUI('checkin','');}catch(e){} isScannedProfileVisible=false;
+  safeAlert('✅ Đã nhận phòng '+room.name+' cho '+g.name);
+}
+document.addEventListener('DOMContentLoaded',function(){
+  let btn=document.getElementById('confirm-checkin-btn');
+  if(btn){ btn.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); confirmCheckin(); }); }
+  ['guest-name','guest-dob','guest-cccd'].forEach(id=>{ let el=document.getElementById(id); if(el) el.addEventListener('input',function(){ el.classList.remove('field-missing'); clearCheckinError(); }); });
+});
+
+function openEditRoomModal(roomId){currentEditRoomId=roomId;let room=rooms.find(r=>r.id===roomId);if(!room||!room.guests[0])return;let g=room.guests[0];currentEditCustPhoto=g.cccdPhoto||'';document.getElementById('edit-room-content').innerHTML=`<div style="font-size:13px;background:#f1f5f9;padding:8px;border-radius:8px">Phòng <b>${room.name}</b> - Khách chính: <b>${g.name}</b> - Tổng ${room.guests.length} khách - Vào lúc: ${formatTime(g.checkInTimeActual||g.checkInTime)}</div>`;let html=`<div class="btn-row"><div class="form-group" style="flex:2"><label>Họ và tên *</label><input id="edit-name" value="${g.name||''}"></div><div class="form-group" style="flex:1"><label>Ngày sinh *</label><input id="edit-dob" value="${g.dob||''}"></div></div><div class="btn-row"><div class="form-group" style="flex:1"><label>Giới tính</label><select id="edit-gender"><option ${g.gender==='Nam'?'selected':''}>Nam</option><option ${g.gender==='Nữ'?'selected':''}>Nữ</option><option ${g.gender==='Khác'?'selected':''}>Khác</option></select></div><div class="form-group" style="flex:1"><label>Quốc tịch</label><input id="edit-nationality" value="${g.nationality||'Việt Nam'}"></div></div><div class="btn-row"><div class="form-group" style="flex:1"><label>CCCD/ĐDCN *</label><input id="edit-cccd" value="${g.cccd||''}"></div><div class="form-group" style="flex:1"><label>Loại giấy tờ</label><input id="edit-doc" value="${g.docType||'CCCD'}"></div></div><div class="form-group"><label>Địa chỉ thường trú *</label><input id="edit-address" value="${g.address||''}"></div><div class="btn-row"><div class="form-group" style="flex:1"><label>Lý do</label><select id="edit-reason"><option ${g.reason==='Du lịch'?'selected':''}>Du lịch</option><option ${g.reason==='Công tác'?'selected':''}>Công tác</option><option ${g.reason==='Thăm thân'?'selected':''}>Thăm thân</option><option ${g.reason==='Lưu trú qua đêm'?'selected':''}>Lưu trú qua đêm</option></select></div><div class="form-group" style="flex:1"><label>Số khách / Biển số</label><div class="btn-row"><input id="edit-count" type="number" value="${g.totalGuests||room.guests.length}"><input id="edit-plate" value="${g.plate||''}" placeholder="Biển số"></div></div></div><div class="btn-row"><div class="form-group" style="flex:1"><label>Hình thức</label><select id="edit-rent"><option value="hourly" ${g.rentType==='hourly'?'selected':''}>Giờ</option><option value="overnight" ${g.rentType==='overnight'?'selected':''}>Qua đêm</option><option value="daily" ${g.rentType==='daily'?'selected':''}>Ngày</option></select></div><div class="form-group" style="flex:1"><label>Cọc</label><input id="edit-deposit" type="number" value="${g.deposit||0}"></div></div><div class="form-group"><label>Ghi chú / Nợ</label><input id="edit-note" value="${g.note||''}"></div>`;document.getElementById('edit-form-fields').innerHTML=html;updatePhotoUI('edit',currentEditCustPhoto);document.getElementById('edit-room-modal').classList.add('active');clearExtraPhoto(); renderExtraGuestsList();updateEditCT14Preview()}
+function updateEditCT14Preview(){if(!currentEditRoomId)return;let room=rooms.find(r=>r.id===currentEditRoomId);if(!room)return;let all=(room.guests||[]).map((g,i)=>`${i===0?'[Chính] ':'[Cùng] '}${g.name||''} | ${g.dob||''} | ${g.cccd||''} | ${g.address||''}`).join('<br>');document.getElementById('edit-ct14-preview').innerHTML=`<strong>CT14 cập nhật - ${room.name} (${room.guests.length} khách):</strong><br>${all}<br><small>Lưu sẽ đồng bộ sang Sổ khách + Lịch sử</small>`}
+function saveRoomEdit(){let room=rooms.find(r=>r.id===currentEditRoomId);if(!room||!room.guests[0])return;let g=room.guests[0];g.name=document.getElementById('edit-name').value.trim();g.dob=document.getElementById('edit-dob').value.trim();g.cccd=document.getElementById('edit-cccd').value.trim();g.address=document.getElementById('edit-address').value.trim();g.gender=document.getElementById('edit-gender').value;g.nationality=document.getElementById('edit-nationality').value;g.docType=document.getElementById('edit-doc').value;g.reason=document.getElementById('edit-reason').value;g.totalGuests=parseInt(document.getElementById('edit-count').value)||room.guests.length;g.plate=document.getElementById('edit-plate').value;g.rentType=document.getElementById('edit-rent').value;g.deposit=parseInt(document.getElementById('edit-deposit').value)||0;g.note=document.getElementById('edit-note').value;g.cccdPhoto=currentEditCustPhoto||g.cccdPhoto;room.deposit=g.deposit;let cust=customers.find(c=>c.cccd===g.cccd||c.id===g.id);if(cust){cust.name=g.name;cust.address=g.address;cust.dob=g.dob;cust.gender=g.gender;cust.cccdPhoto=g.cccdPhoto;cust.note=g.note}else customers.push({id:g.id,name:g.name,cccd:g.cccd,address:g.address,dob:g.dob,gender:g.gender,cccdPhoto:g.cccdPhoto,note:g.note,lastVisit:Date.now()});saveData();closeModal('edit-room-modal');renderRooms();renderCustomers();alert('✅ Đã cập nhật khách chính, giữ nguyên khách ở cùng!')}
+function copyCT14(){let g=buildGuestObject();let room=rooms.find(r=>r.id===currentCheckinRoomId);let text=`THÔNG BÁO LƯU TRÚ CT14\nHọ và tên: ${g.name}\nNgày sinh: ${g.dob}\nGiới tính: ${g.gender}\nSố ĐDCN/CCCD: ${g.cccd}\nĐịa chỉ thường trú: ${g.address}\nLý do: ${g.reason}\nThời gian: Từ ${formatTime(g.checkInTime)} đến ${formatTime(g.checkOutPlan)}\nĐịa chỉ lưu trú: Nhà nghỉ Hy Hy, Rạch Giá, Kiên Giang - ${room?room.name:''}`;navigator.clipboard.writeText(text).then(()=>alert('📋 Đã copy CT14!')).catch(()=>alert(text))}
+function copyEditCT14(){let room=rooms.find(r=>r.id===currentEditRoomId);if(!room||!room.guests[0])return;let text=`CT14 - ${room.name} - ${room.guests.length} khách\n`+(room.guests||[]).map((g,i)=>`${i===0?'[Chính] ':'[Cùng] '}${g.name} | Ngày sinh: ${g.dob} | ĐDCN: ${g.cccd} | Giới tính: ${g.gender||''} | Địa chỉ: ${g.address}`).join('\n')+`\nLý do: ${room.guests[0].reason} | Lưu trú: Nhà nghỉ Hy Hy - ${room.name}`;navigator.clipboard.writeText(text).then(()=>alert('Đã copy CT14 cả phòng ('+room.guests.length+' khách)')).catch(()=>alert(text))}
+function copyForZalo(){copyCT14()}
+// ===== THÊM KHÁCH Ở CÙNG =====
+function renderExtraGuestsList(){let room=rooms.find(r=>r.id===currentEditRoomId);let box=document.getElementById('extra-guests-list');if(!box||!room)return;if(!room.guests)room.guests=[];let extras=room.guests.slice(1);if(extras.length===0){box.innerHTML='<p style="font-size:12px;color:#64748b">Chưa có khách ở cùng. Khách chính là người đứng tên phòng.</p>';return}box.innerHTML=extras.map((g,i)=>{let idx=i+1;return `<div style="background:#fff;border:1px solid #bae6fd;padding:8px;border-radius:8px;margin-bottom:6px;font-size:13px"><b>Khách ${idx+1}: ${g.name}</b> - ${g.cccd||''}<br><small>${g.dob||''} | ${g.gender||''} | ${g.address||''}</small>${g.cccdPhoto?`<br><img src="${g.cccdPhoto}" style="width:100%;max-height:90px;object-fit:contain;border-radius:6px;margin-top:4px" onclick="openZoom('${g.cccdPhoto}')">`:''}<div style="display:flex;gap:6px;margin-top:6px"><button class="btn btn-outline" style="width:auto;padding:4px 8px;font-size:11px;margin:0" onclick="editExtraGuest(${idx})">✏️ Sửa</button><button class="btn btn-danger" style="width:auto;padding:4px 8px;font-size:11px;margin:0" onclick="removeExtraGuest(${idx})">🗑️ Xóa</button></div></div>`}).join('')}
+function addExtraGuest(){let room=rooms.find(r=>r.id===currentEditRoomId);if(!room||!room.guests[0])return alert('Chưa có khách chính!');let name=document.getElementById('extra-name').value.trim();let cccd=document.getElementById('extra-cccd').value.trim();let dob=document.getElementById('extra-dob').value.trim();let addr=document.getElementById('extra-address').value.trim();if(!name||!cccd||!dob)return alert('❌ Thiếu họ tên / ngày sinh / CCCD của khách thêm');if(room.guests.some(g=>g.cccd===cccd))return alert('CCCD này đã có trong phòng!');let ng={id:'g_'+Date.now(),name,cccd,dob,address:addr,cccdPhoto:pendingExtraPhoto||'',gender:document.getElementById('extra-gender').value,nationality:document.getElementById('extra-nationality').value||'Việt Nam',docType:document.getElementById('extra-doc-type').value,reason:room.guests[0].reason,checkInTime:room.guests[0].checkInTime,checkInTimeActual:Date.now(),isExtra:true};room.guests.push(ng);let ex=customers.find(c=>c.cccd===cccd);if(!ex)customers.push({id:ng.id,name,cccd,address:addr,dob,gender:ng.gender,nationality:ng.nationality,docType:ng.docType,lastVisit:Date.now(),note:'Ở cùng phòng '+room.name});saveData();['extra-name','extra-cccd','extra-dob','extra-address'].forEach(id=>document.getElementById(id).value='');clearExtraPhoto(); clearExtraPhoto(); renderExtraGuestsList();updateEditCT14Preview();renderRooms();renderCustomers();alert('✅ Đã thêm '+name+' vào '+room.name+' (Tổng '+room.guests.length+' khách)')}
+function removeExtraGuest(idx){let room=rooms.find(r=>r.id===currentEditRoomId);if(!room)return;if(!confirm('Xóa khách '+room.guests[idx].name+' khỏi phòng?'))return;room.guests.splice(idx,1);saveData();clearExtraPhoto(); renderExtraGuestsList();updateEditCT14Preview();renderRooms()}
+function editExtraGuest(idx){let room=rooms.find(r=>r.id===currentEditRoomId);let g=room.guests[idx];if(!g)return;document.getElementById('extra-name').value=g.name||'';document.getElementById('extra-cccd').value=g.cccd||'';document.getElementById('extra-dob').value=g.dob||'';document.getElementById('extra-address').value=g.address||'';document.getElementById('extra-gender').value=g.gender||'';document.getElementById('extra-nationality').value=g.nationality||'Việt Nam';document.getElementById('extra-doc-type').value=g.docType||'CCCD'; pendingExtraPhoto=g.cccdPhoto||''; let _w=document.getElementById('extra-photo-preview-wrap'); let _im=document.getElementById('extra-photo-preview'); if(_w&&_im&&pendingExtraPhoto){_im.src=pendingExtraPhoto; _w.style.display='block';} room.guests.splice(idx,1);renderExtraGuestsList();document.getElementById('extra-name').focus();alert('Đã đưa lên form - sửa xong bấm "Thêm khách này vào phòng" để lưu lại.')}
+function startExtraGuestScan(){if(!html5QrCode)html5QrCode=new Html5Qrcode("reader");let container=document.getElementById('qr-reader-container');container.style.display='block';html5QrCode.start({facingMode:"environment"},{fps:25,qrbox:{width:300,height:200}},txt=>{stopScanner();let parts=txt.split('|');if(parts.length>=6){document.getElementById('extra-cccd').value=parts[0]||'';document.getElementById('extra-name').value=parts[2]||'';let rawDob=parts[3]||'';if(rawDob.length===8)rawDob=`${rawDob.slice(0,2)}/${rawDob.slice(2,4)}/${rawDob.slice(4,8)}`;document.getElementById('extra-dob').value=rawDob;document.getElementById('extra-gender').value=parts[4]||'';document.getElementById('extra-address').value=parts[5]||'';alert('✅ Quét xong khách thêm - kiểm tra rồi bấm Thêm khách!')}else alert('QR không đúng chuẩn CCCD')},()=>{}).catch(()=>alert('Không mở được camera'))}
+function calculateFee(room){if(!room.guests[0])return{netAmount:0};let g=room.guests[0];let base=g.rentType==='overnight'?prices.overnight:prices.firstHour;let extra=(room.extras||[]).reduce((s,e)=>s+e.price*e.qty,0);let total=base+extra;return{netAmount:Math.max(0,total-(g.deposit||0)),deposit:g.deposit||0,extraTotal:extra,baseAmount:base}}
+function renderRooms(){let list=document.getElementById('room-list');list.innerHTML='';let empty=0,occ=0;rooms.forEach(room=>{let isOcc=room.status==='occupied';if(isOcc)occ++;else empty++;let card=document.createElement('div');card.className=`room-card ${isOcc?'occupied':''}`;let info='',actions='';if(!isOcc){info=`<div class="room-info" style="color:var(--success);font-weight:600">Trống - sẵn sàng khai báo CT14</div>`;actions=`<button class="room-action-btn btn-success" onclick="openCheckinModal(${room.id})">+ Nhận phòng</button>`}else{let g=room.guests[0];let fee=calculateFee(room);let extraHtml=(room.guests||[]).slice(1).map((eg,i)=>`👥 Khách ${i+2}: <b>${eg.name}</b><br>🪪 ${eg.cccd} | ${eg.dob}`).join('<br>');info=`<div class="room-info"><strong>👤 ${g.name} ${room.guests.length>1?`(+${room.guests.length-1} khách cùng)`:''}</strong><br>🪪 ${g.cccd} | ${g.dob}<br>📍 ${g.address||''}<br>🕒 ${formatTime(g.checkInTimeActual||g.checkInTime)} | ${g.reason}<br>${extraHtml?`<div style="background:#e0f2fe;border:1px solid #7dd3fc;padding:6px;border-radius:6px;margin-top:6px;font-size:12px">${extraHtml}</div>`:''}<br>💰 Tạm: <strong style="color:var(--danger)">${formatMoney(fee.netAmount)}</strong>${g.cccdPhoto?`<br><img src="${g.cccdPhoto}" style="width:100%;max-height:90px;object-fit:contain;border-radius:6px;margin-top:4px;cursor:zoom-in" onclick="openZoom('${g.cccdPhoto}')">`:''}</div>${g.note?`<div style="background:#fef08a;padding:4px 6px;border-radius:6px;font-size:11px;margin-top:4px">⚠️ ${g.note}</div>`:''}`;actions=`<div class="room-btn-group"><button class="room-action-btn btn-warning" onclick="openEditRoomModal(${room.id})">✏️ Sửa CT14 / + Khách</button><button class="room-action-btn" style="background:#0ea5e9;color:#fff" onclick="openSellModal(${room.id})">🥤 Bán đồ</button><button class="room-action-btn btn-danger" onclick="openCheckoutModal(${room.id})">💳 Trả</button></div><div class="room-btn-group"><button class="room-action-btn btn-primary" onclick="openZoom('${g.cccdPhoto||''}')">🔍 CCCD</button><button class="room-action-btn" style="background:#f1f5f9" onclick="openOfficial('luutru')">🏛️ Khai báo</button></div><div class="link-bar"><button class="link-copy" onclick="copyEditCT14FromRoom(${room.id})">📋 Copy CT14 cả phòng</button></div>`;if((room.extras||[]).length>0){let exHtml=room.extras.map(e=>`${e.name} x${e.qty} (${formatMoney(e.price*e.qty)})`).join('<br>');info+=`<div style="background:#ecfeff;border:1px solid #a5f3fc;padding:6px;border-radius:6px;font-size:12px;margin-top:6px"><b>🥤 Đã bán:</b><br>${exHtml}</div>`}}card.innerHTML=`<div class="room-h-left"><div class="room-title"><span>${room.name}</span><span class="badge ${isOcc?'bg-red':'bg-green'}">${isOcc?'Đang thuê':'Trống'}</span></div><div style="font-size:11px;color:var(--muted)">${room.type} ${isOcc?`• ${room.guests.length} khách`:''}</div>${info}</div><div class="room-h-right">${actions}</div>`;list.appendChild(card)});document.getElementById('stat-empty').innerText=empty;document.getElementById('stat-occupied').innerText=occ;let todayISO=getLocalDateISO(Date.now());let todayTotal=historyLogs.filter(x=>getLocalDateISO(x.checkOutTime)===todayISO).reduce((s,x)=>s+(x.amount||0),0);document.getElementById('stat-today').innerText=formatMoney(todayTotal);let hl=document.getElementById('history-list');if(hl){hl.innerHTML=historyLogs.slice(0,10).map(h=>`<div style="font-size:12px;padding:6px 0;border-bottom:1px solid #f1f5f9"><b>${h.roomName}</b> - ${h.name}${h.extraGuests?` (+${h.extraGuests})`:''} - ${formatMoney(h.amount)} - ${formatTime(h.checkOutTime)}<br><small>${h.extrasUsed||''}</small></div>`).join('')||'<p style="color:#64748b">Chưa có lịch sử</p>'}}
+function copyEditCT14FromRoom(roomId){currentEditRoomId=roomId;copyEditCT14()}
+function openCheckoutModal(roomId){checkoutRoomId=roomId;let room=rooms.find(r=>r.id===roomId);if(!room||!room.guests[0])return;let g=room.guests[0];document.getElementById('checkout-content').innerHTML=`<div style="font-size:13px">Phòng ${room.name} - ${g.name} + ${room.guests.length-1} khách cùng<br>Tạm tính: ${formatMoney(calculateFee(room).netAmount)}<br><label>Thu thực tế (VNĐ)</label><input type="number" id="checkout-amount" value="${calculateFee(room).netAmount+(room.deposit||0)}"></div>`;document.getElementById('checkout-modal').classList.add('active')}
+function confirmCheckout(){let room=rooms.find(r=>r.id===checkoutRoomId);if(!room)return;let g=room.guests[0];let amount=parseInt(document.getElementById('checkout-amount').value)||0;let extrasUsed=(room.extras||[]).map(e=>`${e.name} x${e.qty}`).join(', ');historyLogs.unshift({roomName:room.name,name:g.name,cccd:g.cccd,address:g.address,totalGuests:room.guests.length,extraGuests:room.guests.slice(1).map(x=>x.name).join(', '),allGuests:room.guests.map(x=>`${x.name}|${x.dob}|${x.cccd}`).join('; '),plate:g.plate,rentType:g.rentType,amount,deposit:g.deposit,checkInTime:g.checkInTimeActual||g.checkInTime,checkOutTime:Date.now(),note:g.note,docType:g.docType,reason:g.reason,dob:g.dob,extrasUsed});room.status='empty';room.guests=[];room.deposit=0;room.extras=[];saveData();closeModal('checkout-modal');renderRooms();alert('Đã trả phòng & lưu lịch sử + CT14 + Khách ở cùng: '+(historyLogs[0].extraGuests||'Không có'))}
+function clearHistory(){if(!confirm('Xóa lịch sử hiển thị?'))return;historyLogs=[];saveData();renderRooms()}
+function renderCustomers(){let q=(document.getElementById('search-cust')?.value||'').toLowerCase();let list=document.getElementById('customer-list');let filtered=customers.filter(c=>(c.name||'').toLowerCase().includes(q)||(c.cccd||'').includes(q)||(c.note||'').toLowerCase().includes(q));list.innerHTML=filtered.map(c=>`<div style="background:#fff;padding:10px;border-radius:8px;margin-bottom:6px;border:1px solid #e2e8f0"><b>${c.name}</b> - ${c.cccd||''}<br><small>${c.address||''} | ${c.dob||''}</small>${c.cccdPhoto?`<br><img src="${c.cccdPhoto}" style="width:100%;max-height:120px;object-fit:contain;border-radius:6px">`:''}<br><small style="color:red">${c.note||''}</small></div>`).join('')||'<p style="text-align:center;color:var(--muted)">Chưa có khách</p>'}
+function openAddCustomerModal(){alert('Thêm khách qua Nhận phòng sẽ tự liên kết sổ khách - CT14')}
+function renderSettingsRooms(){let c=document.getElementById('settings-room-list');c.innerHTML=rooms.map(r=>`<div style="display:flex;justify-content:space-between;background:#f8fafc;padding:8px;border-radius:8px;margin-bottom:6px;font-size:13px"><span><b>${r.name}</b> (${r.type}) ${r.status==='occupied'?'[Đang thuê - '+r.guests.length+' khách]':''}</span><button class="btn btn-danger" style="width:auto;padding:4px 8px;font-size:11px" onclick="deleteRoom(${r.id})">Xóa</button></div>`).join('')}
+function addNewRoom(){let name=document.getElementById('new-room-name').value.trim();if(!name)return alert('Nhập tên phòng');rooms.push({id:Date.now(),name,type:document.getElementById('new-room-type').value,status:'empty',guests:[],extras:[],deposit:0});document.getElementById('new-room-name').value='';saveData();renderRooms();renderSettingsRooms()}
+function deleteRoom(id){let room=rooms.find(r=>r.id===id);if(room&&room.status==='occupied')return alert('Không xóa phòng đang thuê');if(!confirm('Xóa?'))return;rooms=rooms.filter(r=>r.id!==id);saveData();renderRooms();renderSettingsRooms()}
+function renderStatsReport(){document.getElementById('rep-total-visits').innerText=historyLogs.length;let total=historyLogs.reduce((s,x)=>s+(x.amount||0),0);document.getElementById('rep-total-amount').innerText=formatMoney(total);document.getElementById('rep-net-profit').innerText=formatMoney(total)}
+function exportToExcel(){if(typeof XLSX==='undefined')return alert('Chưa tải lib');let wb=XLSX.utils.book_new();let rows=historyLogs.map((h,i)=>({'STT':i+1,'Phòng':h.roomName,'Họ tên (chính)':h.name,'Khách ở cùng':h.extraGuests||'','Tất cả khách':h.allGuests||'','Ngày sinh':h.dob||'','CCCD':h.cccd||'','Địa chỉ':h.address||'','Lý do':h.reason||'','Hình thức':h.rentType,'Vào':formatTime(h.checkInTime),'Ra':formatTime(h.checkOutTime),'Tiền':h.amount,'Đồ đã bán':h.extrasUsed||'','Ghi chú':h.note||''}));XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'LichSu_CT14');XLSX.writeFile(wb,`HyHy_V6_CT14_${getLocalDateISO(Date.now())}.xlsx`)}
+function exportData(){let dataStr=JSON.stringify({rooms,customers,historyLogs,stockItems,prices});let blob=new Blob([dataStr],{type:'application/json'});let url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download=`SaoLuu_HyHy_V6_${getLocalDateISO(Date.now())}.json`;a.click()}
+function closeModal(id){if(id==='checkin-modal')stopScanner();document.getElementById(id).classList.remove('active')}
+
+function isZaloWebview(){return /zalo|content:\/\//i.test(navigator.userAgent+location.href)}
+function startCameraScanSafe(){
+  // Trong Zalo / file content:// : camera live bị chặn -> đi thẳng sang Chụp / Chọn ảnh
+  if(isZaloWebview() || location.protocol!=='https:' && location.protocol!=='http:'){
+    document.getElementById('qr-file-input').click();
+    return;
+  }
+  startCameraScan();
+}
+function startCameraScan(){let container=document.getElementById('qr-reader-container');container.style.display='block';if(!html5QrCode)html5QrCode=new Html5Qrcode("reader");let cfg={fps:25,qrbox:{width:300,height:200}};html5QrCode.start({facingMode:"environment"},cfg,txt=>{stopScanner();parseCCCD(txt)},()=>{}).catch(()=>{html5QrCode.start({facingMode:"user"},cfg,txt=>{stopScanner();parseCCCD(txt)},()=>{}).catch(()=>{container.style.display='none';alert('Không mở được camera trực tiếp (Zalo chặn). Đã chuyển sang Chụp / Chọn ảnh QR — bấm OK rồi chọn ảnh CCCD.');document.getElementById('qr-file-input').click()})})}
+function scanExtraFromFile(e){
+  if(!e.target.files[0])return;
+  let file=e.target.files[0];
+  let h=new Html5Qrcode("reader");
+  h.scanFile(file,true).then(txt=>{
+    let parts=txt.split('|');
+    if(parts.length>=6){
+      document.getElementById('extra-cccd').value=parts[0]||'';
+      document.getElementById('extra-name').value=parts[2]||'';
+      let rawDob=parts[3]||''; if(rawDob.length===8) rawDob=`${rawDob.slice(0,2)}/${rawDob.slice(2,4)}/${rawDob.slice(4,8)}`;
+      document.getElementById('extra-dob').value=rawDob;
+      document.getElementById('extra-gender').value=parts[4]||'';
+      document.getElementById('extra-address').value=parts[5]||'';
+      alert('✅ Quét xong khách thêm bằng ảnh - kiểm tra rồi bấm Thêm khách!');
+    } else alert('Ảnh không đọc được QR CCCD. Chụp lại rõ mã QR, đủ sáng rồi thử lại, hoặc nhập tay.');
+  }).catch(()=>alert('Không đọc được QR từ ảnh. Chụp lại rõ mã QR, không bị chói / mờ, hoặc nhập tay.'));
+  e.target.value='';
+}
+function startExtraGuestScan(){ document.getElementById('qr-extra-file-input').click(); }
+
+function stopScanner(){if(html5QrCode&&html5QrCode.isScanning){html5QrCode.stop().then(()=>document.getElementById('qr-reader-container').style.display='none').catch(()=>document.getElementById('qr-reader-container').style.display='none')}else document.getElementById('qr-reader-container').style.display='none'}
+function scanFromFile(e){if(!e.target.files[0])return;compressImageFile(e.target.files[0]).then(url=>{pendingCheckinPhoto=url;updatePhotoUI('checkin',url)});let file=e.target.files[0];let h=new Html5Qrcode("reader");h.scanFile(file,true).then(txt=>parseCCCD(txt)).catch(()=>alert('Không đọc được QR từ ảnh, nhưng đã lưu ảnh CCCD'))}
+function switchInvTab(tab){document.getElementById('inv-sub-stock').style.display=tab==='stock'?'block':'none';document.getElementById('inv-sub-expense').style.display=tab==='expense'?'block':'none';if(tab==='stock')renderStockList();else renderInventoryList()}
+function addNewStockItem(){let name=document.getElementById('stock-new-name').value.trim();let price=parseInt(document.getElementById('stock-new-price').value)||0;let qty=parseInt(document.getElementById('stock-new-qty').value)||0;if(!name||price<=0){alert('Nhập tên và giá bán hợp lệ!');return}let ex=stockItems.find(s=>s.name.toLowerCase()===name.toLowerCase());if(ex){ex.price=price;ex.qty+=qty;ex.totalIn=(ex.totalIn||0)+qty}else stockItems.push({id:'stk_'+Date.now(),name,price,qty,totalIn:qty,totalSold:0});document.getElementById('stock-new-name').value='';document.getElementById('stock-new-price').value='';document.getElementById('stock-new-qty').value='';saveAll();renderStockList();populateInvStockDropdown();alert('✅ Đã nhập kho: '+name+' x'+qty)}
+function renderStockList(){let c=document.getElementById('stock-list');if(!c)return;if(stockItems.length===0){c.innerHTML='<p style="text-align:center;color:var(--muted)">Chưa có mặt hàng nào.</p>';return}c.innerHTML=stockItems.map(item=>{let low=item.qty<5;return `<div class="stock-card ${low?'stock-low':'stock-ok'}"><div><div style="font-weight:700">${item.name} ${low?'<span style="color:var(--danger);font-size:11px">(SẮP HẾT!)</span>':''}</div><div style="font-size:12px;color:var(--muted)">Giá: <b>${formatMoney(item.price)}</b> | Đã bán: ${item.totalSold||0}</div></div><div style="text-align:right"><div style="font-size:11px">Tồn</div><div style="font-size:18px;font-weight:800;color:${low?'var(--danger)':'var(--success)'}">${item.qty}</div><div style="display:flex;gap:4px;margin-top:4px"><button class="btn btn-outline" style="width:auto;padding:4px 8px;font-size:11px;margin:0" onclick="openEditStockModal('${item.id}')">Sửa</button><button class="btn btn-primary" style="width:auto;padding:4px 8px;font-size:11px;margin:0" onclick="quickSellFromStock('${item.id}')">Bán</button></div></div></div>`}).join('')}
+function openEditStockModal(id){let item=stockItems.find(s=>s.id===id);if(!item)return;document.getElementById('edit-stock-id').value=item.id;document.getElementById('edit-stock-title').innerText='Sửa kho: '+item.name;document.getElementById('edit-stock-name').value=item.name;document.getElementById('edit-stock-price').value=item.price;document.getElementById('edit-stock-qty').value=item.qty;document.getElementById('edit-stock-modal').classList.add('active')}
+function saveStockEdit(){let id=document.getElementById('edit-stock-id').value;let item=stockItems.find(s=>s.id===id);if(!item)return;let newQty=parseInt(document.getElementById('edit-stock-qty').value)||0;if(newQty>item.qty)item.totalIn=(item.totalIn||0)+(newQty-item.qty);item.name=document.getElementById('edit-stock-name').value.trim()||item.name;item.price=parseInt(document.getElementById('edit-stock-price').value)||item.price;item.qty=newQty;saveAll();closeModal('edit-stock-modal');renderStockList();populateInvStockDropdown()}
+function deleteStockItem(){if(!confirm('Xóa mặt hàng này?'))return;let id=document.getElementById('edit-stock-id').value;stockItems=stockItems.filter(s=>s.id!==id);saveAll();closeModal('edit-stock-modal');renderStockList();populateInvStockDropdown()}
+function populateInvStockDropdown(){let sel=document.getElementById('inv-link-stock');if(!sel)return;sel.innerHTML='<option value="">-- Không cộng kho --</option>'+stockItems.map(s=>`<option value="${s.id}">${s.name} (Tồn: ${s.qty})</option>`).join('')}
+function autoFillInvName(){let sel=document.getElementById('inv-link-stock');let item=stockItems.find(s=>s.id===sel.value);if(item)document.getElementById('inv-item-name').value=item.name}
+function addInventoryRecord(){let name=document.getElementById('inv-item-name').value.trim();let qty=parseInt(document.getElementById('inv-item-qty').value)||0;let cost=parseInt(document.getElementById('inv-item-cost').value)||0;let cat=document.getElementById('inv-item-category').value;let note=document.getElementById('inv-item-note').value;let linkId=document.getElementById('inv-link-stock').value;if(!name||qty<=0){alert('Nhập tên và số lượng!');return}if(linkId){let st=stockItems.find(s=>s.id===linkId);if(st){st.qty+=qty;st.totalIn=(st.totalIn||0)+qty}}inventoryLogs.unshift({id:'inv_'+Date.now(),name,category:cat,qty,cost,note,time:Date.now(),linked:!!linkId});document.getElementById('inv-item-name').value='';document.getElementById('inv-item-cost').value='';saveAll();renderInventoryList();renderStockList();populateInvStockDropdown();alert('✅ Đã lưu phiếu nhập!')}
+function renderInventoryList(){let c=document.getElementById('inventory-list');if(!c)return;let total=inventoryLogs.reduce((s,x)=>s+(x.cost||0),0);document.getElementById('total-inv-expense').innerText='Tổng chi: '+formatMoney(total);if(inventoryLogs.length===0){c.innerHTML='<p style="text-align:center;color:var(--muted)">Chưa có phiếu nào</p>';return}c.innerHTML=inventoryLogs.slice(0,20).map(i=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px"><div><b>${i.name}</b> <span>x${i.qty}</span><br><small>${i.category} | ${formatTime(i.time)}</small></div><b style="color:var(--danger)">${formatMoney(i.cost)}</b></div>`).join('')}
+function openSellModal(roomId){let room=rooms.find(r=>r.id===roomId);if(!room||room.status!=='occupied'){alert('Phòng đang trống!');return}if(stockItems.length===0){alert('Kho đang trống!');return}currentSellRoomId=roomId;let sel=document.getElementById('sell-stock-id');sel.innerHTML=stockItems.map(s=>`<option value="${s.id}">${s.name} - ${formatMoney(s.price)} (Tồn: ${s.qty})</option>`).join('');document.getElementById('sell-title').innerText='Bán đồ cho '+room.name+' - '+(room.guests[0]?.name||'');document.getElementById('sell-qty').value=1;updateSellPrice();document.getElementById('sell-modal').classList.add('active')}
+function quickSellFromStock(stockId){let occ=rooms.find(r=>r.status==='occupied');if(!occ){alert('Không có phòng nào đang thuê!');return}openSellModal(occ.id);document.getElementById('sell-stock-id').value=stockId;updateSellPrice()}
+function updateSellPrice(){let id=document.getElementById('sell-stock-id').value;let item=stockItems.find(s=>s.id===id);if(!item)return;document.getElementById('sell-price').value=item.price;let qty=parseInt(document.getElementById('sell-qty').value)||1;document.getElementById('sell-stock-info').innerHTML=`Tồn: <b>${item.qty}</b>`;document.getElementById('sell-total').innerText=`Thành tiền: ${formatMoney(item.price*qty)}`}
+function confirmSell(){let room=rooms.find(r=>r.id===currentSellRoomId);if(!room)return;let item=stockItems.find(s=>s.id===document.getElementById('sell-stock-id').value);let qty=parseInt(document.getElementById('sell-qty').value)||0;let price=parseInt(document.getElementById('sell-price').value)||item.price;if(qty<=0)return alert('Nhập số lượng!');if(qty>item.qty){if(!confirm(`Tồn chỉ còn ${item.qty}, vẫn bán ${qty}?`))return}item.qty-=qty;item.totalSold=(item.totalSold||0)+qty;if(!room.extras)room.extras=[];let ex=room.extras.find(e=>e.stockId===item.id);if(ex)ex.qty+=qty;else room.extras.push({stockId:item.id,name:item.name,price,qty});saveAll();closeModal('sell-modal');renderRooms();renderStockList();alert(`✅ Đã bán ${item.name} x${qty} cho ${room.name}`)}
+renderStockList();populateInvStockDropdown();renderInventoryList();renderRooms();
+try{ if(/meta\.ai\/share|\/share\//.test(location.href)){ let w=document.getElementById('preview-warning'); if(w) w.style.display='block'; } }catch(e){}
+</script>
+</body>
+</html>
